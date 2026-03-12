@@ -1,11 +1,13 @@
 """Tests for seed candidate detection stage."""
 
+import numpy as np
 import pytest
 
 from fieldscope.config import SeedsConfig
 from fieldscope.models import Author, Paper, Provenance, SeedCandidate
 from fieldscope.stages.seeds import (
     detect_seed_candidates,
+    score_by_centroid_proximity,
     score_by_citation_count,
     score_by_pagerank,
 )
@@ -142,3 +144,50 @@ class TestDetectSeedCandidates:
         ids = [c.paper_id for c in candidates]
         assert "10.1/c" in ids
         assert "10.1/a" in ids
+
+    def test_with_centroid_proximity(self):
+        papers = [
+            _make_paper("10.1/a", citation_count=10, embedding=[0.9, 0.1, 0.0]),
+            _make_paper("10.1/b", citation_count=100, embedding=[0.0, 0.0, 1.0]),
+            _make_paper("10.1/c", citation_count=50, embedding=[0.8, 0.2, 0.0]),
+        ]
+        config = SeedsConfig(methods=["citation_count", "centroid_proximity"], top_k=3)
+        candidates = detect_seed_candidates(papers, config)
+        assert len(candidates) == 3
+        for c in candidates:
+            assert "centroid_proximity" in c.methods
+
+
+# ---------------------------------------------------------------------------
+# Centroid proximity scoring
+# ---------------------------------------------------------------------------
+
+
+class TestScoreByCentroidProximity:
+    def test_closer_to_centroid_scores_higher(self):
+        papers = [
+            _make_paper("10.1/a", embedding=[1.0, 0.0, 0.0]),
+            _make_paper("10.1/b", embedding=[0.0, 1.0, 0.0]),
+            _make_paper("10.1/c", embedding=[0.9, 0.1, 0.0]),
+        ]
+        # Centroid is roughly [0.63, 0.37, 0.0] — a and c are closer
+        scores = score_by_centroid_proximity(papers)
+        assert scores["10.1/a"] > scores["10.1/b"]
+        assert scores["10.1/c"] > scores["10.1/b"]
+
+    def test_skips_papers_without_embedding(self):
+        papers = [
+            _make_paper("10.1/a", embedding=[1.0, 0.0]),
+            _make_paper("10.1/b", embedding=None),
+        ]
+        scores = score_by_centroid_proximity(papers)
+        assert "10.1/a" in scores
+        assert scores.get("10.1/b", 0.0) == 0.0
+
+    def test_all_same_embedding(self):
+        papers = [
+            _make_paper(f"10.1/{i}", embedding=[0.5, 0.5]) for i in range(3)
+        ]
+        scores = score_by_centroid_proximity(papers)
+        # All equally close to centroid
+        assert all(v == 1.0 for v in scores.values())

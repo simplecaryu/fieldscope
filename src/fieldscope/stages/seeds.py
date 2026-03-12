@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 import networkx as nx
+import numpy as np
 
 from fieldscope.config import SeedsConfig
 from fieldscope.models import Paper, SeedCandidate
@@ -45,9 +46,44 @@ def score_by_pagerank(papers: list[Paper]) -> dict[str, float]:
     return {pid: pr.get(pid, 0.0) / max_pr for pid in paper_ids}
 
 
+def score_by_centroid_proximity(papers: list[Paper]) -> dict[str, float]:
+    """Score papers by cosine similarity to the corpus embedding centroid."""
+    embedded = [(p, np.array(p.embedding)) for p in papers if p.embedding is not None]
+    if not embedded:
+        return {p.paper_id: 0.0 for p in papers}
+
+    # Compute centroid
+    vectors = np.array([emb for _, emb in embedded])
+    centroid = vectors.mean(axis=0)
+    centroid_norm = np.linalg.norm(centroid)
+    if centroid_norm == 0:
+        return {p.paper_id: 1.0 for p in papers}
+
+    # Cosine similarity to centroid
+    scores: dict[str, float] = {}
+    for p, emb in embedded:
+        emb_norm = np.linalg.norm(emb)
+        if emb_norm == 0:
+            scores[p.paper_id] = 0.0
+        else:
+            scores[p.paper_id] = float(np.dot(emb, centroid) / (emb_norm * centroid_norm))
+
+    # Papers without embeddings get 0
+    for p in papers:
+        if p.paper_id not in scores:
+            scores[p.paper_id] = 0.0
+
+    # Normalize to [0, 1]
+    max_score = max(scores.values()) if scores else 1.0
+    if max_score == 0:
+        max_score = 1.0
+    return {pid: s / max_score for pid, s in scores.items()}
+
+
 SCORING_METHODS = {
     "citation_count": score_by_citation_count,
     "pagerank": score_by_pagerank,
+    "centroid_proximity": score_by_centroid_proximity,
 }
 
 
