@@ -1,0 +1,29 @@
+{
+  "meta": {"count": 2, "page": 1, "per_page": 25},
+  "results": [
+    {
+      "id": "https://openalex.org/W4444444444",
+      "doi": "https://doi.org/10.1234/citing1",
+      "title": "Citing paper on altermagnetism",
+      "display_name": "Citing paper on altermagnetism",
+      "publication_year": 2024,
+      "cited_by_count": 10,
+      "primary_location": {"source": {"display_name": "PRB"}},
+      "authorships": [{"author": {"display_name": "X. Citing", "orcid": null}}],
+      "referenced_works": ["https://openalex.org/W1111111111"],
+      "abstract_inverted_index": {"Citing": [0], "work": [1]}
+    },
+    {
+      "id": "https://openalex.org/W5555555555",
+      "doi": "https://doi.org/10.1234/citing2",
+      "title": "Another citing paper",
+      "display_name": "Another citing paper",
+      "publication_year": 2025,
+      "cited_by_count": 3,
+      "primary_location": {"source": null},
+      "authorships": [],
+      "referenced_works": ["https://openalex.org/W1111111111", "https://openalex.org/W2222222222"],
+      "abstract_inverted_index": null
+    }
+  ]
+}
