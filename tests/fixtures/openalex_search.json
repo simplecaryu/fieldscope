@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "count": 3,
+    "db_response_time_ms": 42,
+    "page": 1,
+    "per_page": 25
+  },
+  "results": [
+    {
+      "id": "https://openalex.org/W1111111111",
+      "doi": "https://doi.org/10.1234/paper1",
+      "title": "Altermagnetism in RuO2",
+      "display_name": "Altermagnetism in RuO2",
+      "publication_year": 2022,
+      "cited_by_count": 150,
+      "primary_location": {
+        "source": {
+          "display_name": "Physical Review Letters"
+        }
+      },
+      "authorships": [
+        {
+          "author": {
+            "display_name": "L. Šmejkal",
+            "orcid": "https://orcid.org/0000-0001-2345-6789"
+          }
+        },
+        {
+          "author": {
+            "display_name": "J. Sinova",
+            "orcid": null
+          }
+        }
+      ],
+      "referenced_works": [
+        "https://openalex.org/W2222222222",
+        "https://openalex.org/W3333333333"
+      ],
+      "abstract_inverted_index": {
+        "We": [0],
+        "present": [1],
+        "evidence": [2],
+        "for": [3],
+        "altermagnetism": [4],
+        "in": [5],
+        "RuO2": [6]
+      }
+    },
+    {
+      "id": "https://openalex.org/W2222222222",
+      "doi": "https://doi.org/10.1234/paper2",
+      "title": "Spin-split bands in altermagnets",
+      "display_name": "Spin-split bands in altermagnets",
+      "publication_year": 2023,
+      "cited_by_count": 80,
+      "primary_location": {
+        "source": {
+          "display_name": "Nature Physics"
+        }
+      },
+      "authorships": [
+        {
+          "author": {
+            "display_name": "A. Author",
+            "orcid": null
+          }
+        }
+      ],
+      "referenced_works": [
+        "https://openalex.org/W1111111111"
+      ],
+      "abstract_inverted_index": null
+    },
+    {
+      "id": "https://openalex.org/W3333333333",
+      "doi": null,
+      "title": "Theory of altermagnetic ordering",
+      "display_name": "Theory of altermagnetic ordering",
+      "publication_year": 2024,
+      "cited_by_count": 25,
+      "primary_location": {
+        "source": null
+      },
+      "authorships": [],
+      "referenced_works": [],
+      "abstract_inverted_index": {
+        "A": [0],
+        "theoretical": [1],
+        "framework": [2]
+      }
+    }
+  ]
+}

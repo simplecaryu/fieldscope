@@ -13,6 +13,7 @@ import pytest
 
 from fieldscope.config import LLMConfig, LLMStageOverride
 from fieldscope.llm.client import LLMClient
+from fieldscope.stages.keyword_expansion import expand_keywords
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
@@ -108,3 +109,28 @@ class TestOpenRouterLLMClient:
             messages=[{"role": "user", "content": "Say 'test passed'"}],
         )
         assert result.content
+
+
+class TestOpenRouterKeywordExpansion:
+    @pytest.mark.asyncio
+    async def test_expand_keywords_real_api(self):
+        """End-to-end keyword expansion via OpenRouter."""
+        config = LLMConfig(
+            base_url=OPENROUTER_BASE_URL,
+            model=TEST_MODEL,
+            temperature=0.3,
+            max_tokens=512,
+        )
+        keywords = await expand_keywords(
+            query="altermagnetism",
+            config=config,
+            api_key=OPENROUTER_API_KEY,
+        )
+        assert len(keywords) >= 5
+        assert "altermagnetism" in [k.lower() for k in keywords]
+        # Should contain domain-relevant terms
+        all_lower = " ".join(k.lower() for k in keywords)
+        assert any(
+            term in all_lower
+            for term in ["magnet", "spin", "symmetry", "antiferro", "order"]
+        )
