@@ -85,10 +85,14 @@ def normalize_openalex_paper(raw: dict, query: str) -> Paper | None:
     # Abstract
     abstract = reconstruct_abstract(raw.get("abstract_inverted_index"))
 
+    title = raw.get("title") or raw.get("display_name")
+    if not title:
+        return None  # Skip papers without a title
+
     return Paper(
         doi=doi,
         openalex_id=openalex_id,
-        title=raw.get("title") or raw.get("display_name", ""),
+        title=title,
         abstract=abstract,
         authors=authors,
         year=raw.get("publication_year"),
@@ -157,7 +161,9 @@ async def retrieve_papers(
     papers: list[Paper] = []
 
     async with httpx.AsyncClient() as client:
-        for keyword in keywords:
+        for kw_idx, keyword in enumerate(keywords):
+            if kw_idx > 0:
+                await asyncio.sleep(1.0)  # Rate limit courtesy delay
             page = 1
             retrieved_for_keyword = 0
 
